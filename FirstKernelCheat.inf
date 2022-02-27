@@ -1,0 +1,77 @@
+;
+; FirstKernelCheat.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=System ; TODO: specify appropriate Class
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318} ; TODO: specify appropriate ClassGuid
+Provider=%ManufacturerName%
+CatalogFile=FirstKernelCheat.cat
+DriverVer= ; TODO: set DriverVer in stampinf property pages
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+FirstKernelCheat_Device_CoInstaller_CopyFiles = 11
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+FirstKernelCheat.sys  = 1,,
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%FirstKernelCheat.DeviceDesc%=FirstKernelCheat_Device, Root\FirstKernelCheat ; TODO: edit hw-id
+
+[FirstKernelCheat_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+FirstKernelCheat.sys
+
+;-------------- Service installation
+[FirstKernelCheat_Device.NT.Services]
+AddService = FirstKernelCheat,%SPSVCINST_ASSOCSERVICE%, FirstKernelCheat_Service_Inst
+
+; -------------- FirstKernelCheat driver install sections
+[FirstKernelCheat_Service_Inst]
+DisplayName    = %FirstKernelCheat.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\FirstKernelCheat.sys
+
+;
+;--- FirstKernelCheat_Device Coinstaller installation ------
+;
+
+[FirstKernelCheat_Device.NT.CoInstallers]
+AddReg=FirstKernelCheat_Device_CoInstaller_AddReg
+CopyFiles=FirstKernelCheat_Device_CoInstaller_CopyFiles
+
+[FirstKernelCheat_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+[FirstKernelCheat_Device_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[FirstKernelCheat_Device.NT.Wdf]
+KmdfService =  FirstKernelCheat, FirstKernelCheat_wdfsect
+[FirstKernelCheat_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+DiskName = "FirstKernelCheat Installation Disk"
+FirstKernelCheat.DeviceDesc = "FirstKernelCheat Device"
+FirstKernelCheat.SVCDESC = "FirstKernelCheat Service"
